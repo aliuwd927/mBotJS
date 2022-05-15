@@ -1,4 +1,11 @@
 const five = require("johnny-five");
+/*
+Left Motor Pin: 6, Dir: 7
+Right Motor Pin: 5, Dir:4
+Sonar Sensor Pin 10
+Sonar Controller: "HCSR04"
+
+*/
 
 const board = new five.Board({ port: "COM4" });
 
@@ -20,8 +27,6 @@ board.on("ready", () => {
 
   left_motor = new five.Motors([6, 7]);
   right_motor = new five.Motors([5, 4]);
-
-  console.info("Board connected. Robot set up. LRUD to control");
 });
 
 stdin.on("keypress", (chunk, key) => {
