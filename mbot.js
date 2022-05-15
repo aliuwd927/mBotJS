@@ -10,7 +10,8 @@ let max_speed_r = 140;
 const stdin = process.stdin;
 stdin.setRawMode(true);
 
-let l_motor = (r_motor = null);
+let l_motor,
+  r_motor = null;
 
 board.on("ready", function (err) {
   if (err) {
