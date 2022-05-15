@@ -1,56 +1,69 @@
 const five = require("johnny-five");
-/*
-Left Motor Pin: 6, Dir: 7
-Right Motor Pin: 5, Dir:4
-Sonar Sensor Pin 10
-Sonar Controller: "HCSR04"
+const board = new five.Board({ port: "COM5" });
 
-*/
+console.log("Board waiting for connection...");
 
-const board = new five.Board({ port: "COM4" });
+let max_speed_l = 150;
+let max_speed_r = 140;
 
-const left_motor_max_speed = 150;
-const right_motor_max_speed = 140;
+// set up the input
 const stdin = process.stdin;
 stdin.setRawMode(true);
 
-let left_motor,
-  right_motor = null;
+let l_motor = (r_motor = null);
 
-//Led pin 13 middle blue light.
-//When board is on, blue light flashes.
-board.on("ready", () => {
-  console.log("Hello World");
-  //Constant blue light on.
-  const led = new five.Led(13);
-  led.on();
+board.on("ready", function (err) {
+  if (err) {
+    console.log(err);
+    return;
+  }
 
-  left_motor = new five.Motors([6, 7]);
-  right_motor = new five.Motors([5, 4]);
+  l_motor = new five.Motor({ pins: { pwm: 6, dir: 7 } });
+  r_motor = new five.Motor({ pins: { pwm: 5, dir: 4 } });
+
+  console.log("Board Connected, Ready to use...");
+
+  sonarSensor();
 });
 
-stdin.on("keypress", (chunk, key) => {
+function sonarSensor() {
+  const proximity = new five.Proximity({
+    freq: 1500,
+    controller: "HCSR04",
+    pin: 10,
+  });
+
+  proximity.on("data", () => {
+    console.log("inches: ", proximity.in);
+    console.log("centimeter: ", proximity.cm);
+    console.log("id: ", proximity.id);
+  });
+}
+
+stdin.on("keypress", function (chunk, key) {
+  // process the keypresses
+
   if (key) {
     switch (key.name) {
       case "up":
-        left_motor.reverse(left_motor_max_speed);
-        right_motor.forward(right_motor_max_speed);
+        l_motor.reverse(max_speed_l);
+        r_motor.forward(max_speed_r);
         break;
       case "down":
-        right_motor.reverse(right_motor_max_speed);
-        left_motor.forward(left_motor_max_speed);
+        r_motor.reverse(max_speed_r);
+        l_motor.forward(max_speed_l);
         break;
       case "left":
-        left_motor.forward(left_motor_max_speed);
-        right_motor.forward(right_motor_max_speed);
+        l_motor.forward(max_speed_l);
+        r_motor.forward(max_speed_r);
         break;
       case "right":
-        right_motor.reverse(right_motor_max_speed);
-        left_motor.reverse(left_motor_max_speed);
+        r_motor.reverse(max_speed_r);
+        l_motor.reverse(max_speed_l);
         break;
       case "space":
-        left_motor.stop();
-        right_motor.stop();
+        l_motor.stop();
+        r_motor.stop();
         break;
     }
   }
