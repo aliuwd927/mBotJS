@@ -1,10 +1,12 @@
 const five = require("johnny-five");
-const board = new five.Board({ port: "COM5" });
+const board = new five.Board({ port: "COM4" });
 
 console.log("Board waiting for connection...");
 
 let max_speed_l = 150;
 let max_speed_r = 140;
+let minDistance = 0.5;
+let maxDistance = 3;
 
 // set up the input
 const stdin = process.stdin;
@@ -12,6 +14,31 @@ stdin.setRawMode(true);
 
 let l_motor,
   r_motor = null;
+
+function allStop() {
+  l_motor.stop();
+  r_motor.stop();
+}
+
+function forward() {
+  l_motor.reverse(max_speed_l);
+  r_motor.forward(max_speed_r);
+}
+
+function reverse() {
+  r_motor.reverse(max_speed_r);
+  l_motor.forward(max_speed_l);
+}
+
+function left() {
+  l_motor.forward(max_speed_l);
+  r_motor.forward(max_speed_r);
+}
+
+function right() {
+  r_motor.reverse(max_speed_r);
+  l_motor.reverse(max_speed_l);
+}
 
 board.on("ready", function (err) {
   if (err) {
@@ -29,7 +56,7 @@ board.on("ready", function (err) {
 
 function sonarSensor() {
   const proximity = new five.Proximity({
-    freq: 1500,
+    freq: 50,
     controller: "HCSR04",
     pin: 10,
   });
@@ -39,6 +66,11 @@ function sonarSensor() {
     console.log("centimeter: ", proximity.cm);
     console.log("id: ", proximity.id);
   });
+
+  proximity.within([minDistance, maxDistance], "inches", () => {
+    allStop();
+    reverse();
+  });
 }
 
 stdin.on("keypress", function (chunk, key) {
@@ -47,24 +79,19 @@ stdin.on("keypress", function (chunk, key) {
   if (key) {
     switch (key.name) {
       case "up":
-        l_motor.reverse(max_speed_l);
-        r_motor.forward(max_speed_r);
+        forward();
         break;
       case "down":
-        r_motor.reverse(max_speed_r);
-        l_motor.forward(max_speed_l);
+        reverse();
         break;
       case "left":
-        l_motor.forward(max_speed_l);
-        r_motor.forward(max_speed_r);
+        left();
         break;
       case "right":
-        r_motor.reverse(max_speed_r);
-        l_motor.reverse(max_speed_l);
+        right();
         break;
       case "space":
-        l_motor.stop();
-        r_motor.stop();
+        allStop();
         break;
     }
   }
