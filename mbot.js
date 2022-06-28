@@ -96,3 +96,15 @@ stdin.on("keypress", function (chunk, key) {
     }
   }
 });
+
+//IDEA
+/*
+
+  Randomize its movement. 
+  If it detects wall, stop, reverse, pick a movement and continue.
+
+ - Too bad, you'll be too dumb for this -
+  But as the bot, hits a "wall", figure out a way to MAP it.
+  The reason being is so that way, it can find an exit.
+  
+*/
