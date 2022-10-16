@@ -1,5 +1,5 @@
 const five = require("johnny-five");
-const board = new five.Board({ port: "COM4" });
+const board = new five.Board({ port: "COM6" });
 
 console.log("Board waiting for connection...");
 
